@@ -1,7 +1,7 @@
 # nginx-rtmp-streaming-rpi
 
 ### What does it do?
-Turn your raspberry pi into a live streaming server. You can a streaming application like OBStudio or XSplit to record the live event, then push the audio/video stream to the streaming server.
+Turn your raspberry pi into a live streaming server. You can use a streaming application like OBStudio or XSplit to record the live event, then push the audio/video stream to the streaming server.
 
 ### Features
 - provide a webpage to view the live 
