@@ -31,8 +31,7 @@ cd nginx-rtmp-streaming-rpi
 bash install.sh
 ```
 
-##### Change config files
-**hosts**: 
+##### Change the hosts config file provided from this repository 
  - change the IP address to that of the
    Raspberry Pi
 
