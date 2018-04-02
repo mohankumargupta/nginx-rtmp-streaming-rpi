@@ -1,0 +1,93 @@
+---
+- name: RTMP Nginx Streaming
+  hosts: raspberrypis
+  become: true
+  vars:
+    NGINX_DIRECTORY: /usr/local/nginx
+    NGINX_TMP_DIRECTORY: /tmp/nginx-1.7.9
+    STREAM_KEY: test
+  tasks:
+    - name: Install prerequisites
+      apt:
+        name: "{{ item }}"
+      with_items:
+        - git
+        - libpcre3 
+        - libpcre3-dev
+
+    - name: Unzip Nginx rtmp module
+      unarchive:
+        src: https://github.com/arut/nginx-rtmp-module/archive/master.zip
+        dest: /tmp
+        remote_src: true
+
+    - name: Untar nginx
+      unarchive:
+        src: http://nginx.org/download/nginx-1.7.9.tar.gz
+        dest: /tmp
+        remote_src: true
+
+    - name: Grab OpenSSL v1.0.2k
+      git:
+        repo: https://github.com/openssl/openssl.git
+        dest: /usr/local/src/OpenSSL_1_0_2k
+        version: OpenSSL_1_0_2k
+        force: yes
+
+    - name: Configure Nginx with RTMP module
+      shell: |
+        ./configure --add-module=/tmp/nginx-rtmp-module-master --with-openssl=/usr/local/src/OpenSSL_1_0_2k
+      args:
+        chdir: "{{ NGINX_TMP_DIRECTORY }}"
+
+    - name: Make Nginx rtmp module
+      command: make
+      become: true
+      args:
+        chdir: "{{ NGINX_TMP_DIRECTORY }}"
+
+    - name: Install Nginx rtmp module
+      command: make install
+      become: true
+      args:
+        chdir: "{{ NGINX_TMP_DIRECTORY }}"
+
+    - name: Copy nginx executable to /usr/local/bin
+      copy:
+        src: "{{ NGINX_DIRECTORY }}/sbin/nginx"
+        dest: /usr/local/bin
+        mode: 0755
+        remote_src: true
+      tags:
+        - nginx
+
+    - name: Copy nginx.conf to pi
+      copy:
+        src: nginx.conf
+        dest: /usr/local/nginx/conf
+      tags:
+        - nginx
+
+    - name: Create directory /tmp/hls/test
+      file:
+        path: "/tmp/hls/{{ STREAM_KEY }}"
+        state: directory
+
+    - name: Copy nginx service file
+      copy:
+        src: nginx.service
+        dest: /etc/systemd/system
+
+    - name: Start and enable nginx
+      systemd:
+        name: nginx
+        enabled: yes
+        state: started
+
+    - name: Copy index.html
+      copy:
+        src: index.html
+        dest: /usr/local/nginx/html
+
+
+
