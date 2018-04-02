@@ -71,6 +71,14 @@
         path: "/tmp/hls/{{ STREAM_KEY }}"
         state: directory
 
+    - name: Create recordings directory
+      file:
+        path: "{{ NGINX_DIRECTORY }}/recordings"
+        state: directory
+        mode: 0777
+        owner: pi
+        group: pi
+
     - name: Copy nginx service file
       copy:
         src: nginx.service
